@@ -8,6 +8,8 @@ const timeDelta = 500; //milisegundos
 const tetriminoColor = "red";
 const backgroundColor = "rgb(55, 55, 55)";
 const obstacleColor = "rgb(160, 10, 10)";
+let intervalId;
+let gameOver = false;
 
 const tetriminos = [
     [
@@ -93,6 +95,7 @@ const moveTetrimino = (tetrimino, dx, dy, virtual) => {
 };
 
 const keyboardEvents = (e) => {
+    if (gameOver) return;
     if (e.key === "ArrowLeft" && !collision(tetrimino, -1, 0)) {
         tetrimino = moveTetrimino(tetrimino, -1, 0);
     };
@@ -141,14 +144,14 @@ const createBoard = () => {
 };
 
 const animate = (timeDelta) => {
-    const intervalId = setInterval(() => {
+    intervalId = setInterval(() => {
         if (!collision(tetrimino, 0, 1)) {
             tetrimino = moveTetrimino(tetrimino, 0, 1);
         } else {
             delimitTetrimino(tetrimino, obstacleColor);
             verifyGameOver(tetrimino, intervalId);
             verifyLines(tetrimino);
-            tetrimino = newTetrimino();
+            if (!gameOver) tetrimino = newTetrimino();
         };
     }, timeDelta);
 };
@@ -217,10 +220,12 @@ const adjustRotation = (tetrimino) => {
 const verifyGameOver = (tetrimino, intervalId) => {
     if (tetrimino.y < 1) {
         clearInterval(intervalId);
+        gameOver = true;
         const message = document.createElement("h2");
         message.classList.add("game-over");
         message.textContent = "GAME OVER";
         document.body.appendChild(message);
+        document.getElementById("restart-button").style.display = "block";
     };
 };
 
@@ -234,9 +239,48 @@ const updateGameData = (completeLines, pointsFactor) => {
     spanLines.textContent = lines;
 };
 
+const restartGame = () => {
+    score = 0;
+    lines = 0;
+    document.getElementById("score").textContent = score;
+    document.getElementById("lines").textContent = lines;
+    gameOver = false;
+    document.querySelector(".game-over").remove();
+    document.getElementById("restart-button").style.display = "none";
+    [...table.rows].forEach((row) => {
+        [...row.cells].forEach((cell) => {
+            cell.style.backgroundColor = backgroundColor;
+            cell.style.display = "table-cell";
+        });
+    });
+    createBoard();
+    tetrimino = newTetrimino();
+    animate(timeDelta);
+};
+
 const table = createTable(cols, rows);
 document.body.appendChild(table);
 createBoard();
 let tetrimino = newTetrimino();
 document.addEventListener("keydown", keyboardEvents);
 animate(timeDelta);
+
+document.getElementById("restart-button").addEventListener("click", restartGame);
+document.getElementById("left-button").addEventListener("click", () => {
+    if (!collision(tetrimino, -1, 0)) {
+        tetrimino = moveTetrimino(tetrimino, -1, 0);
+    };
+});
+document.getElementById("right-button").addEventListener("click", () => {
+    if (!collision(tetrimino, 1, 0)) {
+        tetrimino = moveTetrimino(tetrimino, 1, 0);
+    };
+});
+document.getElementById("down-button").addEventListener("click", () => {
+    if (!collision(tetrimino, 0, 1)) {
+        tetrimino = moveTetrimino(tetrimino, 0, 1);
+    };
+});
+document.getElementById("rotate-button").addEventListener("click", () => {
+    tetrimino = rotateTetrimino(tetrimino);
+});
