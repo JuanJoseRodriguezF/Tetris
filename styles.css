@@ -1,0 +1,34 @@
+body {
+    background-color: rgb(40, 40, 40);
+    color: white;
+    display: flex;
+    justify-content: center;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    background-color: rgb(55, 55, 55);
+    border: 1px solid black;
+    width: 4vh;
+    height: 4vh;
+}
+
+.game-over {
+    position: fixed;
+    top: 20%;
+}
+
+div.data-container {
+    display: block;
+    position: fixed;
+    font-size: 3vh;
+    margin-left: 75vh;
+    margin-top: 5vh;
+}
+
+.data {
+    padding: 6px;
+}
